@@ -227,9 +227,18 @@ function spin(){
  setTimeout(()=>{
   area.classList.remove("preparing");area.classList.add("spinning");
   startSpinSound();
-  // If this round contains the active team's captain, the player wheel must land on that captain.
-  const forcedCaptainIndex=isCaptain?-1:names.findIndex(player=>captainNameMatches(player,state.activeCaptain));
-  const winnerIndex=forcedCaptainIndex>=0?forcedCaptainIndex:rand(names.length),step=360/names.length,center=-90+(winnerIndex+.5)*step;
+  let winnerIndex;
+  if(isCaptain){
+   // Teams whose captains appear in this round's roster must win their team turns before other teams.
+   const priorityIds=state.remainingCaptains.filter(id=>ROSTER[state.round-1].some(player=>captainNameMatches(player,id)));
+   const priorityIndices=priorityIds.map(id=>names.indexOf(teamName(id))).filter(index=>index>=0);
+   winnerIndex=priorityIndices.length?priorityIndices[rand(priorityIndices.length)]:rand(names.length);
+  }else{
+   // On a captain's own team turn, force their name as the player-spin result.
+   const forcedCaptainIndex=names.findIndex(player=>captainNameMatches(player,state.activeCaptain));
+   winnerIndex=forcedCaptainIndex>=0?forcedCaptainIndex:rand(names.length);
+  }
+  const step=360/names.length,center=-90+(winnerIndex+.5)*step;
   let target=(( -90-center)%360+360)%360+1800;
   $("wheel").classList.add("spinning");
   $("wheel").style.transform="rotate(0deg)";
