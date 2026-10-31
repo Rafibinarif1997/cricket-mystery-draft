@@ -62,7 +62,7 @@ header:before{left:-35px}header:after{right:-35px}
 <div><div class="current"><div class="eyebrow">CURRENT CAPTAIN</div><div class="currentName" id="currentCaptain">Captain 1</div><div class="muted" id="turnInfo">এই রাউন্ডের প্রথম Spin</div></div><h3>এই রাউন্ডের খেলোয়াড়</h3><div class="remaining" id="remaining"></div><div class="result" id="result"><div class="eyebrow">SELECTED PLAYER</div><div class="winner" id="winner"></div><div class="muted" id="winnerTeam"></div></div><div class="controls"><button class="btn" id="nextCaptain" disabled>পরের ক্যাপ্টেন</button><button class="btn" id="nextRound" disabled>পরের রাউন্ড</button></div><div class="status" id="status">শুরু করতে নিচে ক্যাপ্টেনদের নাম দিয়ে Draft শুরু করুন।</div></div></div>
 </section>
 <section class="panel"><div class="eyebrow">TEAM SQUADS</div><h2>চারটি দলের খেলোয়াড়</h2><div class="teams" id="teams"></div></section>
-<section class="panel"><div class="eyebrow">DRAFT SETUP</div><h3>ক্যাপ্টেনদের নাম</h3><div class="setupGrid"><input class="field" id="cap0" placeholder="Sarwar"><input class="field" id="cap1" placeholder="Munna"><input class="field" id="cap2" placeholder="Arif"><input class="field" id="cap3" placeholder="Sobuj"></div><div class="controls"><button class="btn" id="start">START / NEW DRAFT</button><button class="btn" id="reset">RESET DRAFT</button></div><p class="muted">রাউন্ডের খেলোয়াড়ের তালিকা স্থির থাকবে। প্রতিটি Spin-এ শুধু অবশিষ্ট খেলোয়াড়দের মধ্যে থেকে একজন র‍্যান্ডমভাবে নির্বাচিত হবে।</p></section>
+<section class="panel"><div class="eyebrow">DRAFT SETUP</div><h3>দল ও ক্যাপ্টেন</h3><div class="setupGrid"><label class="muted">Bepary Tigers · Sarwar<input class="field" id="cap0" placeholder="Sarwar"></label><label class="muted">Bepary Lions · Munna<input class="field" id="cap1" placeholder="Munna"></label><label class="muted">Bepary Victorians · Arif<input class="field" id="cap2" placeholder="Arif"></label><label class="muted">Bepary Vipers · Sobuj<input class="field" id="cap3" placeholder="Sobuj"></label></div><div class="controls"><button class="btn" id="start">START / NEW DRAFT</button><button class="btn" id="reset">RESET DRAFT</button></div><p class="muted">রাউন্ডের খেলোয়াড়ের তালিকা স্থির থাকবে। প্রতিটি Spin-এ শুধু অবশিষ্ট খেলোয়াড়দের মধ্যে থেকে একজন র‍্যান্ডমভাবে নির্বাচিত হবে।</p></section>
 <div class="footer">BEPARY SUPER LEAGUE · SESSION 05 · LOCAL DRAFT MODE</div></main>
 <script>
 const ROSTER=[
@@ -80,6 +80,8 @@ const ROSTER=[
 ["Tamim","Erfan","Masum","Munna"]
 ];
 const $=id=>document.getElementById(id);let state=null,busy=false;
+const TEAM_NAMES={a:"Bepary Tigers",b:"Bepary Lions",c:"Bepary Victorians",d:"Bepary Vipers"};
+const teamName=id=>TEAM_NAMES[id]||state.captains[id];
 let soundOn=true,audioCtx=null,spinTimer=null;
 function audio(){if(!soundOn)return null;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}catch(e){return null;}}
 function tone(freq,duration=0.12,type="sine",volume=0.045,delay=0){
@@ -94,19 +96,19 @@ function shuffle(a){let x=[...a];for(let i=x.length-1;i>0;i--){let j=rand(i+1);[
 function save(){try{localStorage.setItem("cricket-random-spinner-2026",JSON.stringify(state));}catch(e){}}
 function load(){try{let s=JSON.parse(localStorage.getItem("cricket-random-spinner-2026"));if(s&&s.round>=1&&s.round<=12&&s.remainingCaptains)state=s;}catch(e){}}
 function drawWheel(names){const c=$("canvas"),ctx=c.getContext("2d"),w=c.width,cx=w/2,cy=w/2,r=w/2-8;ctx.clearRect(0,0,w,w);if(!names.length){ctx.fillStyle="#152a40";ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();return;}const colors=["#214767","#87602b","#315c62","#624c79"];const step=Math.PI*2/names.length;names.forEach((name,i)=>{let a=-Math.PI/2+i*step;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+step);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.strokeStyle="#f3c66b";ctx.lineWidth=5;ctx.stroke();let mid=a+step/2,tx=cx+Math.cos(mid)*r*.58,ty=cy+Math.sin(mid)*r*.58;ctx.save();ctx.translate(tx,ty);ctx.fillStyle="#fff";ctx.font="bold 26px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";let label=name.length>17?name.slice(0,16)+"…":name;ctx.fillText(label,0,0,190);ctx.restore();});}
-function captainWheelNames(){return state.remainingCaptains.map(id=>state.captains[id]);}
+function captainWheelNames(){return state.remainingCaptains.map(id=>teamName(id));}
 function wheelNames(){return state.phase==="captain"?captainWheelNames():state.remaining;}
 function render(){
  if(!state)return;
  $("roundTitle").textContent="ROUND "+String(state.round).padStart(2,"0")+" / 12";
  $("pickedCount").textContent=state.results.length+"/48";
- $("captains").innerHTML=state.captainIds.map(id=>{let done=state.roundDone.includes(id),active=state.activeCaptain===id;return '<div class="captain '+(done?"done":active?"active":"")+'">'+state.captains[id]+'<br><small>'+(done?"PICKED THIS ROUND":active?"CURRENT CAPTAIN":"WAITING FOR SPIN")+'</small></div>';}).join("");
- $("currentCaptain").textContent=state.activeCaptain?state.captains[state.activeCaptain]:"CAPTAIN SPIN";
- $("turnInfo").textContent=state.phase==="captain"?"প্রথমে ক্যাপ্টেন নির্বাচন করুন":state.phase==="player"?"এবার "+state.captains[state.activeCaptain]+"-এর জন্য খেলোয়াড় Spin করুন":"এই রাউন্ডের সব নির্বাচন শেষ";
+ $("captains").innerHTML=state.captainIds.map(id=>{let done=state.roundDone.includes(id),active=state.activeCaptain===id;return '<div class="captain '+(done?"done":active?"active":"")+'">'+teamName(id)+'<br><small>CAPTAIN: '+state.captains[id]+' · '+(done?"PICKED":active?"CURRENT":"WAITING")+'</small></div>';}).join("");
+ $("currentCaptain").textContent=state.activeCaptain?teamName(state.activeCaptain):"TEAM SPIN";
+ $("turnInfo").textContent=state.phase==="captain"?"প্রথমে টিম নির্বাচন করুন":state.phase==="player"?"এবার "+teamName(state.activeCaptain)+" (ক্যাপ্টেন: "+state.captains[state.activeCaptain]+")-এর জন্য খেলোয়াড় Spin করুন":"এই রাউন্ডের সব নির্বাচন শেষ";
  $("remaining").innerHTML=(state.phase==="captain"?captainWheelNames():state.remaining).map(n=>'<div class="nameChip">'+n+'</div>').join("")+(Array(Math.max(0,4-(state.phase==="captain"?captainWheelNames():state.remaining).length)).fill('<div class="nameChip out">Selected</div>').join(""));
  drawWheel(wheelNames());
- $("teams").innerHTML=state.captainIds.map(id=>'<div class="team"><h3>'+state.captains[id]+'</h3><ol>'+(state.teams[id]||[]).map(p=>'<li>'+p+'</li>').join("")+'</ol></div>').join("");
- $("spin").textContent=state.phase==="captain"?"SPIN CAPTAIN":"SPIN PLAYER";
+ $("teams").innerHTML=state.captainIds.map(id=>'<div class="team"><h3>'+teamName(id)+'</h3><div class="muted">Captain: '+state.captains[id]+'</div><ol>'+(state.teams[id]||[]).map(p=>'<li>'+p+'</li>').join("")+'</ol></div>').join("");
+ $("spin").textContent=state.phase==="captain"?"SPIN TEAM":"SPIN PLAYER";
  $("spin").disabled=busy||!!state.lastWinner||state.phase==="done"||(state.phase==="captain"&&!state.remainingCaptains.length)||(state.phase==="player"&&!state.remaining.length);
  $("nextCaptain").disabled=busy||!state.lastWinner||state.roundDone.length>=4;
  $("nextRound").disabled=busy||state.roundDone.length!==4||state.round>=12;
@@ -134,10 +136,10 @@ function assignPlayer(captainId,player,automatic=false){
  state.roundDone.push(captainId);
  state.lastWinner=player;
  $("winner").textContent=player;
- $("winnerTeam").textContent=state.captains[captainId]+"-এর দলে "+(automatic?"অটোমেটিক যুক্ত হয়েছে":"যুক্ত হয়েছে");
+ $("winnerTeam").textContent=teamName(captainId)+"-এ "+(automatic?"ক্যাপ্টেন অটোমেটিক যুক্ত হয়েছেন":"যুক্ত হয়েছে")+" · Captain: "+state.captains[captainId];
  $("result").classList.add("show");
  state.phase="captain";
- $("status").textContent=automatic?"ক্যাপ্টেনের নিজের নাম এই রাউন্ডে ছিল—নিজের দলে অটোমেটিক যোগ হয়েছে।":"প্লেয়ার নির্বাচন সম্পন্ন। পরের ক্যাপ্টেন স্পিন করুন।";
+ $("status").textContent=automatic?state.captains[captainId]+" নিজের দল "+teamName(captainId)+"-এ অটোমেটিক যুক্ত হয়েছেন।":"প্লেয়ার "+teamName(captainId)+"-এ যুক্ত হয়েছে। পরের টিম স্পিন করুন।";
 }
 function spin(){
  if(!state||busy||state.lastWinner)return;
@@ -153,7 +155,7 @@ function spin(){
  setTimeout(()=>{
   stopSpinSound();
   if(isCaptain){
-   const captainName=names[winnerIndex],captainId=state.remainingCaptains.find(id=>state.captains[id]===captainName);
+   const selectedTeam=names[winnerIndex],captainId=state.remainingCaptains.find(id=>teamName(id)===selectedTeam);
    state.remainingCaptains=state.remainingCaptains.filter(id=>id!==captainId);
    state.activeCaptain=captainId;
    sound("captain");
