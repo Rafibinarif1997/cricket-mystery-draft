@@ -1,19 +1,69 @@
 <!doctype html>
-<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CRICKET MYSTERY DRAFT 2026</title>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bepary Super League - Session 05</title>
 <style>
 :root{--gold:#f3c66b;--bg:#07111f;--panel:#102137;--line:#29415c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b3855,var(--bg) 65%);color:#f5f7fb;font-family:system-ui,"Noto Sans Bengali",sans-serif}header{text-align:center;padding:28px 12px;border-bottom:1px solid #ffffff20}.eyebrow{color:var(--gold);letter-spacing:.22em;font-size:11px}.brand{font-size:clamp(25px,6vw,46px);font-weight:950}.muted{color:#9eb0c6;font-size:13px}.wrap{max-width:1050px;margin:auto;padding:18px}.panel,.stat{background:linear-gradient(145deg,#14283e,#0d1b2c);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:15px}.stats,.captains,.teams{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{text-align:center;margin:0}.stat b{display:block;color:var(--gold);font-size:24px}.captain,.team{background:#091827;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.captain.active{border-color:var(--gold);box-shadow:0 0 18px #f3c66b25;color:var(--gold)}.captain.done{border-color:#36785f;color:#9ce0bb}.layout{display:grid;grid-template-columns:minmax(280px,1fr) minmax(250px,.8fr);gap:20px;align-items:center}.wheelArea{display:flex;flex-direction:column;align-items:center;gap:12px}.wheelWrap{position:relative;width:min(82vw,390px);aspect-ratio:1}.wheel{width:100%;height:100%;border-radius:50%;border:8px solid #d7b66c;box-shadow:0 0 0 5px #172a40,0 12px 35px #0009;transition:transform 5s cubic-bezier(.12,.72,.12,1);background:#162c43}.wheel canvas{width:100%;height:100%;display:block;border-radius:50%}.pointer{position:absolute;z-index:2;left:50%;top:-10px;transform:translateX(-50%);width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;border-top:34px solid #ffe19a;filter:drop-shadow(0 3px 3px #000)}.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:62px;height:62px;border-radius:50%;background:linear-gradient(140deg,#f8df9d,#b98232);border:5px solid #17283b;box-shadow:0 2px 10px #0008}.spinBtn,.btn{border:0;border-radius:10px;padding:13px 20px;background:linear-gradient(130deg,#f6d98e,#d69d3e);color:#17130a;font-weight:900;cursor:pointer}.spinBtn{font-size:17px;min-width:190px}.btn:disabled,.spinBtn:disabled{opacity:.4;cursor:not-allowed}.current{text-align:center}.currentName{font-size:26px;color:var(--gold);font-weight:900}.remaining{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}.nameChip{background:#091827;border:1px solid var(--line);padding:10px;border-radius:9px;text-align:center}.nameChip.out{opacity:.35;text-decoration:line-through}.result{display:none;margin-top:14px;padding:14px;border:1px solid var(--gold);border-radius:12px;text-align:center}.result.show{display:block}.winner{font-size:32px;color:var(--gold);font-weight:900}.team{text-align:left}.team h3{color:var(--gold);margin:0 0 8px}.team ol{padding-left:22px;margin-bottom:0}.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.field{width:100%;padding:10px;margin:6px 0 12px;background:#061321;color:white;border:1px solid var(--line);border-radius:8px}.setupGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.status{min-height:22px;color:#b6c7d9;margin-top:10px}.hide{display:none!important}.footer{text-align:center;color:#71849b;font-size:11px;padding:16px}
 @media(max-width:760px){.layout{grid-template-columns:1fr}.stats,.captains,.teams{grid-template-columns:repeat(2,1fr)}.wheelWrap{width:min(78vw,340px)}.panel{padding:14px}}
+
+/* === BEPARY SUPER LEAGUE / SESSION 05 VISUAL IDENTITY === */
+:root{--gold:#e8c36e;--bg:#050d17;--panel:#0b1a29;--line:#29445a;--lime:#b8f36b;--ice:#d9e9f3}
+body{background:radial-gradient(ellipse at 50% -12%,#254c59 0%,#0b1a28 42%,#050b13 82%);background-attachment:fixed;color:#f4f7f8;letter-spacing:.01em}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.15;background-image:linear-gradient(90deg,transparent 49.7%,#9bc2cb 50%,transparent 50.3%),linear-gradient(transparent 49.7%,#9bc2cb 50%,transparent 50.3%);background-size:54px 54px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
+header{position:relative;overflow:hidden;padding:34px 14px 28px;border-bottom:1px solid #b8f36b45;background:linear-gradient(180deg,#102b39b8,#07121e80);box-shadow:0 16px 55px #0005}
+header:before,header:after{content:"";position:absolute;top:10px;width:150px;height:95px;opacity:.22;background:radial-gradient(ellipse,#e8c36e 0%,transparent 68%);filter:blur(9px)}
+header:before{left:-35px}header:after{right:-35px}
+.eyebrow{color:var(--lime);letter-spacing:.24em;font-weight:800;font-size:10px;text-transform:uppercase}
+.brand{font-size:clamp(27px,6.2vw,52px);font-weight:1000;letter-spacing:-.045em;line-height:1.12;text-transform:uppercase;text-shadow:0 4px 30px #b8f36b30}
+.muted{color:#9eb5c3}
+.wrap{max-width:1120px;padding:22px 18px}
+.panel,.stat{background:linear-gradient(145deg,#102638ed,#091725f5);border:1px solid #355267;border-radius:18px;box-shadow:0 14px 38px #0005,inset 0 1px #ffffff0b}
+.panel{padding:21px;position:relative;overflow:hidden}
+.panel:before{content:"";position:absolute;left:0;top:0;width:64px;height:3px;background:linear-gradient(90deg,var(--lime),transparent)}
+.stats{gap:12px;margin-bottom:16px}
+.stat{padding:13px 8px;background:linear-gradient(150deg,#163448,#0b1a28)}
+.stat b{color:var(--lime);font-size:27px;letter-spacing:-.04em}
+.captain,.team{background:linear-gradient(145deg,#102538,#091521);border:1px solid #29485c;border-radius:13px}
+.captain{font-weight:800;line-height:1.65}
+.captain.active{border-color:var(--lime);box-shadow:0 0 0 1px #b8f36b35,0 0 25px #b8f36b18;color:var(--lime)}
+.captain.done{border-color:#4d9b7a;color:#a6e9c4}
+.layout{gap:26px}
+.wheelWrap{width:min(82vw,410px);filter:drop-shadow(0 18px 28px #0008)}
+.wheel{border:7px solid #d6b66d;box-shadow:0 0 0 5px #142d3b,0 0 0 8px #b8f36b20,0 16px 38px #000b;background:#122c3c}
+.pointer{border-top-color:var(--lime);filter:drop-shadow(0 0 8px #b8f36b80)}
+.hub{background:radial-gradient(circle at 35% 30%,#fff0b9,#d4a84f 55%,#7b5522);border-color:#173143}
+.spinBtn,.btn{border-radius:11px;background:linear-gradient(135deg,#d9f99b,#a6db59 60%,#7bb83d);color:#10200b;box-shadow:0 5px 0 #527b2a,0 10px 22px #0004;transition:transform .15s,filter .15s,box-shadow .15s}
+.spinBtn{font-size:16px;letter-spacing:.08em;min-width:205px;padding:15px 22px}
+.btn{padding:11px 16px;font-size:12px;letter-spacing:.035em}
+.spinBtn:hover,.btn:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 7px 0 #527b2a,0 14px 25px #0005}
+.spinBtn:active,.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #527b2a}
+.btn:disabled,.spinBtn:disabled{box-shadow:none;filter:grayscale(.55)}
+.current{padding:16px;border:1px solid #355267;border-radius:14px;background:linear-gradient(135deg,#0b1a27,#102b38)}
+.currentName{color:var(--lime);font-size:clamp(22px,4vw,30px)}
+.remaining{gap:9px}
+.nameChip{background:#071522;border:1px solid #29475a;border-radius:10px;font-weight:700}
+.nameChip.out{border-style:dashed}
+.result{border-color:var(--lime);background:linear-gradient(145deg,#172e32,#0a1b25);box-shadow:0 0 28px #b8f36b15}
+.winner{color:var(--lime);text-shadow:0 0 22px #b8f36b35}
+.team{padding:15px;min-height:150px}
+.team h3{color:var(--lime);border-bottom:1px solid #345165;padding-bottom:9px}
+.team li{padding:3px 0;color:#d5e2e9}
+.field{background:#06131e;border:1px solid #355267;border-radius:10px}
+.field:focus{outline:1px solid var(--lime);border-color:var(--lime)}
+.status{color:#c2d3dc;font-size:13px}
+.footer{letter-spacing:.18em;color:#708b9a}
+.soundToggle{position:absolute;right:14px;top:13px;border:1px solid #b8f36b66;border-radius:99px;background:#071722d9;color:var(--lime);padding:7px 11px;font-size:10px;font-weight:900;letter-spacing:.1em;cursor:pointer}
+.soundToggle:hover{background:#183342}
+@media(max-width:760px){.wrap{padding:14px 12px}.panel{padding:15px}.stats{gap:8px}.stat{padding:10px 4px}.stat b{font-size:23px}.layout{gap:18px}.wheelWrap{width:min(78vw,350px)}header{padding-top:48px}.soundToggle{top:10px;right:10px}}
 </style></head><body>
-<header><div class="eyebrow">THE GRAND PLAYER SELECTION</div><div class="brand">CRICKET RANDOM SPINNER</div><div class="muted">৪ ডিসেম্বর ২০২৬ · বিকাল ৪:০০টা · ৪ ক্যাপ্টেন · ১২ রাউন্ড · ৪৮ খেলোয়াড়</div></header>
+<header><button class="soundToggle" id="soundToggle" type="button">SOUND: ON</button><div class="eyebrow">THE BIGGEST LOCAL CRICKET DRAFT</div><div class="brand">Bepary Super League</div><div class="eyebrow" style="margin-top:8px;letter-spacing:.3em">SESSION 05</div><div class="muted" style="margin-top:10px">৪ ডিসেম্বর ২০২৬ · বিকাল ৪:০০টা · ৪ ক্যাপ্টেন · ১২ রাউন্ড · ৪৮ খেলোয়াড়</div></header>
 <main class="wrap">
 <div class="stats"><div class="stat"><b>12</b><span class="muted">ROUNDS</span></div><div class="stat"><b>48</b><span class="muted">PLAYERS</span></div><div class="stat"><b>4</b><span class="muted">TEAMS</span></div><div class="stat"><b id="pickedCount">0/48</b><span class="muted">SELECTED</span></div></div>
-<section class="panel"><div class="eyebrow">LIVE DRAFT</div><h2 id="roundTitle">ROUND 01 / 12</h2><div class="captains" id="captains"></div>
+<section class="panel"><div class="eyebrow">OFFICIAL PLAYER DRAFT</div><h2 id="roundTitle">ROUND 01 / 12</h2><div class="captains" id="captains"></div>
 <div class="layout"><div class="wheelArea"><div class="wheelWrap"><div class="pointer"></div><div class="wheel" id="wheel"><canvas id="canvas" width="700" height="700"></canvas></div><div class="hub"></div></div><button class="spinBtn" id="spin">SPIN THE WHEEL</button><div class="muted">চাকা থেমে একজন খেলোয়াড় নির্বাচন হবে</div></div>
 <div><div class="current"><div class="eyebrow">CURRENT CAPTAIN</div><div class="currentName" id="currentCaptain">Captain 1</div><div class="muted" id="turnInfo">এই রাউন্ডের প্রথম Spin</div></div><h3>এই রাউন্ডের খেলোয়াড়</h3><div class="remaining" id="remaining"></div><div class="result" id="result"><div class="eyebrow">SELECTED PLAYER</div><div class="winner" id="winner"></div><div class="muted" id="winnerTeam"></div></div><div class="controls"><button class="btn" id="nextCaptain" disabled>পরের ক্যাপ্টেন</button><button class="btn" id="nextRound" disabled>পরের রাউন্ড</button></div><div class="status" id="status">শুরু করতে নিচে ক্যাপ্টেনদের নাম দিয়ে Draft শুরু করুন।</div></div></div>
 </section>
 <section class="panel"><div class="eyebrow">TEAM SQUADS</div><h2>চারটি দলের খেলোয়াড়</h2><div class="teams" id="teams"></div></section>
 <section class="panel"><div class="eyebrow">DRAFT SETUP</div><h3>ক্যাপ্টেনদের নাম</h3><div class="setupGrid"><input class="field" id="cap0" placeholder="Sarwar"><input class="field" id="cap1" placeholder="Munna"><input class="field" id="cap2" placeholder="Arif"><input class="field" id="cap3" placeholder="Sobuj"></div><div class="controls"><button class="btn" id="start">START / NEW DRAFT</button><button class="btn" id="reset">RESET DRAFT</button></div><p class="muted">রাউন্ডের খেলোয়াড়ের তালিকা স্থির থাকবে। প্রতিটি Spin-এ শুধু অবশিষ্ট খেলোয়াড়দের মধ্যে থেকে একজন র‍্যান্ডমভাবে নির্বাচিত হবে।</p></section>
-<div class="footer">CRICKET RANDOM SPINNER · LOCAL DRAFT MODE</div></main>
+<div class="footer">BEPARY SUPER LEAGUE · SESSION 05 · LOCAL DRAFT MODE</div></main>
 <script>
 const ROSTER=[
 ["Mizbah","Umayer","Abbas","Afzal"],
@@ -30,6 +80,15 @@ const ROSTER=[
 ["Tamim","Erfan","Masum","Munna"]
 ];
 const $=id=>document.getElementById(id);let state=null,busy=false;
+let soundOn=true,audioCtx=null,spinTimer=null;
+function audio(){if(!soundOn)return null;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}catch(e){return null;}}
+function tone(freq,duration=0.12,type="sine",volume=0.045,delay=0){
+ const ac=audio();if(!ac)return;const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+delay;
+ o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+duration+.02);
+}
+function sound(kind){if(!soundOn)return;if(kind==="click"){tone(520,.055,"triangle",.025);return;}if(kind==="captain"){tone(660,.16,"sine",.055);tone(880,.22,"sine",.045,.13);return;}if(kind==="win"){tone(523,.16,"triangle",.05);tone(659,.18,"triangle",.05,.13);tone(784,.3,"triangle",.055,.27);return;}if(kind==="auto"){tone(784,.13,"sine",.05);tone(988,.2,"sine",.05,.12);tone(1175,.26,"sine",.05,.25);}}
+function startSpinSound(){if(!soundOn)return;let n=0;spinTimer=setInterval(()=>{tone(170+(n%5)*24,.045,"square",.012);n++;},105);}
+function stopSpinSound(){if(spinTimer){clearInterval(spinTimer);spinTimer=null;}}
 function rand(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}
 function shuffle(a){let x=[...a];for(let i=x.length-1;i>0;i--){let j=rand(i+1);[x[i],x[j]]=[x[j],x[i]];}return x;}
 function save(){try{localStorage.setItem("cricket-random-spinner-2026",JSON.stringify(state));}catch(e){}}
@@ -70,7 +129,7 @@ function matchCaptainPlayer(captainId){
  return true;
 }
 function assignPlayer(captainId,player,automatic=false){
- state.teams[captainId].push(player);
+ sound(automatic?"auto":"win");state.teams[captainId].push(player);
  state.results.push({round:state.round,captain:captainId,player,automatic});
  state.roundDone.push(captainId);
  state.lastWinner=player;
@@ -85,17 +144,19 @@ function spin(){
  const isCaptain=state.phase==="captain";
  const names=isCaptain?captainWheelNames():[...state.remaining];
  if(!names.length)return;
- busy=true;render();
+ busy=true;startSpinSound();render();
  const winnerIndex=rand(names.length),step=360/names.length,center=-90+(winnerIndex+.5)*step;
  let target=(( -90-center)%360+360)%360+1800;
  $("wheel").style.transform="rotate(0deg)";
  requestAnimationFrame(()=>requestAnimationFrame(()=>{$("wheel").style.transform="rotate("+target+"deg)";}));
  $("status").textContent=isCaptain?"ক্যাপ্টেন নির্বাচন হচ্ছে...":"খেলোয়াড় নির্বাচন হচ্ছে...";
  setTimeout(()=>{
+  stopSpinSound();
   if(isCaptain){
    const captainName=names[winnerIndex],captainId=state.remainingCaptains.find(id=>state.captains[id]===captainName);
    state.remainingCaptains=state.remainingCaptains.filter(id=>id!==captainId);
    state.activeCaptain=captainId;
+   sound("captain");
    if(!matchCaptainPlayer(captainId)){
     state.phase="player";
     $("status").textContent=state.captains[captainId]+" নির্বাচিত। এবার Player Spin করুন।";
@@ -123,8 +184,12 @@ function nextRound(){
  state.round++;state.phase="captain";state.remainingCaptains=[...state.captainIds];state.activeCaptain=null;state.roundDone=[];state.remaining=[...ROSTER[state.round-1]];state.lastWinner=null;
  $("result").classList.remove("show");$("status").textContent="নতুন রাউন্ড। প্রথমে ক্যাপ্টেন স্পিন করুন।";save();render();
 }
-$("spin").onclick=spin;$("nextCaptain").onclick=nextCaptain;$("nextRound").onclick=nextRound;$("start").onclick=begin;
-$("reset").onclick=()=>{if(confirm("সব ফলাফল মুছে নতুন করে শুরু করবেন?")){localStorage.removeItem("cricket-random-spinner-2026");state=null;busy=false;$("result").classList.remove("show");$("status").textContent="নতুন Draft শুরু করতে ক্যাপ্টেনদের নাম দিন।";$("pickedCount").textContent="0/48";$("roundTitle").textContent="ROUND 01 / 12";$("captains").innerHTML="";$("currentCaptain").textContent="—";$("remaining").innerHTML="";$("teams").innerHTML="";drawWheel([]);$("spin").disabled=true;$("nextCaptain").disabled=true;$("nextRound").disabled=true;}};
+$("spin").onclick=()=>{spin();};
+$("nextCaptain").onclick=()=>{sound("click");nextCaptain();};
+$("nextRound").onclick=()=>{sound("click");nextRound();};
+$("start").onclick=()=>{sound("click");begin();};
+$("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent="SOUND: "+(soundOn?"ON":"OFF");if(soundOn)sound("captain");else stopSpinSound();};
+$("reset").onclick=()=>{if(confirm("সব ফলাফল মুছে নতুন করে শুরু করবেন?")){sound("click");stopSpinSound();localStorage.removeItem("cricket-random-spinner-2026");state=null;busy=false;$("result").classList.remove("show");$("status").textContent="নতুন Draft শুরু করতে ক্যাপ্টেনদের নাম দিন।";$("pickedCount").textContent="0/48";$("roundTitle").textContent="ROUND 01 / 12";$("captains").innerHTML="";$("currentCaptain").textContent="—";$("remaining").innerHTML="";$("teams").innerHTML="";drawWheel([]);$("spin").disabled=true;$("nextCaptain").disabled=true;$("nextRound").disabled=true;}};
 load();
 if(state){state.lastWinner=null;state.activeCaptain=null;state.phase="captain";render();$("status").textContent="আগের Draft সেভ ছিল; নতুন ক্যাপ্টেন স্পিন থেকে চালিয়ে যেতে পারো.";[0,1,2,3].forEach(i=>$("cap"+i).value=state.captains[state.captainIds[i]]);}
 else{[0,1,2,3].forEach((i)=>$("cap"+i).value=["Sarwar","Munna","Arif","Sobuj"][i]);drawWheel([]);$("spin").disabled=true;}
