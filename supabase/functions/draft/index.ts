@@ -16,9 +16,10 @@ serve(async req=>{
  if(action==="initialize"){
  if(!admin)return reply({error:"Admin authorization required"},403);
  const c=body.captains,r=body.roster;
- if(!Array.isArray(c)||c.length!==4||Object.keys(r||{}).length!==12||Object.values(r).some((v:any)=>!Array.isArray(v)||v.length!==4))return reply({error:"Need 4 captains and 12 boxes with 4 players each"},400);
- const all=Object.values(r).flat();if(all.length!==48||new Set(all.map((x:any)=>String(x).trim().toLowerCase())).size!==48)return reply({error:"Roster must contain 48 unique names"},400);
- const ids=c.map(()=>uid()),captains=Object.fromEntries(ids.map((id,i)=>[id,c[i]])),s={captains,captainsOrder:ids,round:1,turnIndex:0,order:shuffle(ids),roundPicks:[],results:[],teams:Object.fromEntries(ids.map(id=>[id,[]])),hiddenPools:Object.values(r).map((a:any)=>shuffle(a))};
+ if(!Array.isArray(c)||c.length!==4||!r||Array.from({length:12},(_,i)=>r["Box "+(i+1)]).some((v:any)=>!Array.isArray(v)||v.length!==4))return reply({error:"Need Box 1 through Box 12, with 4 players in each"},400);
+ const orderedPools=Array.from({length:12},(_,i)=>r["Box "+(i+1)] as string[]);
+ const all=orderedPools.flat();if(all.length!==48||new Set(all.map((x:any)=>String(x).trim().toLowerCase())).size!==48)return reply({error:"Roster must contain 48 unique names"},400);
+ const ids=c.map(()=>uid()),captains=Object.fromEntries(ids.map((id,i)=>[id,c[i]])),s={captains,captainsOrder:ids,round:1,turnIndex:0,order:shuffle(ids),roundPicks:[],results:[],teams:Object.fromEntries(ids.map(id=>[id,[]])),hiddenPools:orderedPools.map((a:string[])=>shuffle(a))};
  await save(s);return reply(publicState(s));
  }
  const s=await load();
