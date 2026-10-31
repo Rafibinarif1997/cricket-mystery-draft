@@ -118,7 +118,7 @@ function wheelNames(){return state.phase==="captain"?captainWheelNames():state.r
 function render(){
  if(!state)return;
  $("roundTitle").textContent="ROUND "+String(state.round).padStart(2,"0")+" / 12";
- const teamMode=state.phase==="captain";$("wheel").classList.toggle("team-mode",teamMode);$("wheel").classList.toggle("player-mode",!teamMode);$("wheelArea");$("wheelModeLabel").textContent=teamMode?"TEAM DRAFT · BLUE MODE":"PLAYER PICK · GREEN MODE";$("wheelModeLabel").style.color=teamMode?"#8bd5ff":"#b8f36b";$("wheelArea");$("wheel").parentElement.parentElement.classList.toggle("team-draw",teamMode);$("wheel").parentElement.parentElement.classList.toggle("player-draw",!teamMode);
+ const teamMode=state.phase==="captain";$("wheel").classList.toggle("team-mode",teamMode);$("wheel").classList.toggle("player-mode",!teamMode);$("wheelModeLabel").textContent=teamMode?"TEAM DRAFT · BLUE MODE":"PLAYER PICK · GREEN MODE";$("wheelModeLabel").style.color=teamMode?"#8bd5ff":"#b8f36b";$("wheelArea");$("wheel").parentElement.parentElement.classList.toggle("team-draw",teamMode);$("wheel").parentElement.parentElement.classList.toggle("player-draw",!teamMode);
  $("pickedCount").textContent=state.results.length+"/48";
  $("captains").innerHTML=state.captainIds.map(id=>{let done=state.roundDone.includes(id),active=state.activeCaptain===id;return '<div class="captain '+(done?"done":active?"active":"")+'">'+teamName(id)+'<br><small>CAPTAIN: '+state.captains[id]+' · '+(done?"PICKED":active?"CURRENT":"WAITING")+'</small></div>';}).join("");
  $("currentCaptain").textContent=state.activeCaptain?teamName(state.activeCaptain):"TEAM SPIN";
