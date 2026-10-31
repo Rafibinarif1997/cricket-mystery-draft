@@ -238,10 +238,11 @@ function spin(){
     state.remainingCaptains=state.remainingCaptains.filter(id=>id!==captainId);
     state.activeCaptain=captainId;
     sound("captain");
-    if(!matchCaptainPlayer(captainId)){
-     state.phase="player";
-     $("status").textContent=state.captains[captainId]+" নির্বাচিত। এবার Player Spin করুন।";
-    }
+    // Captain selection must always be followed by a player spin.
+    // Captain names are excluded from the player pool, so never auto-complete this turn.
+    state.remaining=state.remaining.filter(p=>!isAnyCaptainPlayer(p));
+    state.phase="player";
+    $("status").textContent=state.captains[captainId]+" নির্বাচিত। এবার SPIN PLAYER চাপুন।";
    }else{
     const player=names[winnerIndex];
     state.remaining=state.remaining.filter(p=>p!==player&&!isAnyCaptainPlayer(p));
