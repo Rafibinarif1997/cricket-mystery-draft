@@ -52,13 +52,25 @@ header:before{left:-35px}header:after{right:-35px}
 .footer{letter-spacing:.18em;color:#708b9a}
 .soundToggle{position:absolute;right:14px;top:13px;border:1px solid #b8f36b66;border-radius:99px;background:#071722d9;color:var(--lime);padding:7px 11px;font-size:10px;font-weight:900;letter-spacing:.1em;cursor:pointer}
 .soundToggle:hover{background:#183342}
+/* Separate wheel identities: team draw vs player draw */
+.wheel.team-mode{border-color:#79c9ff;box-shadow:0 0 0 5px #172a40,0 0 0 10px #4b9edb35,0 0 38px #319ce988,0 16px 38px #000b}
+.wheel.player-mode{border-color:#d6b66d;box-shadow:0 0 0 5px #142d3b,0 0 0 10px #b8f36b30,0 0 38px #b8f36b66,0 16px 38px #000b}
+.wheel.team-mode .wheel canvas{filter:saturate(1.25)}
+.wheel.player-mode .wheel canvas{filter:saturate(1.05)}
+.wheelArea.team-draw .pointer{border-top-color:#83d5ff;filter:drop-shadow(0 0 9px #50baff)}
+.wheelArea.player-draw .pointer{border-top-color:var(--lime);filter:drop-shadow(0 0 9px #b8f36b)}
+.wheelArea.team-draw .hub{background:radial-gradient(circle at 35% 30%,#e3f7ff,#48a6e7 58%,#174d83);border-color:#163b59}
+.wheelArea.player-draw .hub{background:radial-gradient(circle at 35% 30%,#fff0b9,#d4a84f 55%,#7b5522);border-color:#173143}
+.wheelModeLabel{font-size:11px;font-weight:950;letter-spacing:.2em;color:#8bd5ff;border:1px solid #58b9f466;background:#0a2132;padding:7px 13px;border-radius:99px}
+.wheelArea.player-draw .wheelModeLabel{color:var(--lime);border-color:#b8f36b66;background:#10251b}
+
 @media(max-width:760px){.wrap{padding:14px 12px}.panel{padding:15px}.stats{gap:8px}.stat{padding:10px 4px}.stat b{font-size:23px}.layout{gap:18px}.wheelWrap{width:min(78vw,350px)}header{padding-top:48px}.soundToggle{top:10px;right:10px}}
 </style></head><body>
 <header><button class="soundToggle" id="soundToggle" type="button">SOUND: ON</button><div class="eyebrow">THE BIGGEST LOCAL CRICKET DRAFT</div><div class="brand">Bepary Super League</div><div class="eyebrow" style="margin-top:8px;letter-spacing:.3em">SESSION 05</div><div class="muted" style="margin-top:10px">৪ ডিসেম্বর ২০২৬ · বিকাল ৪:০০টা · ৪ ক্যাপ্টেন · ১২ রাউন্ড · ৪৮ খেলোয়াড়</div></header>
 <main class="wrap">
 <div class="stats"><div class="stat"><b>12</b><span class="muted">ROUNDS</span></div><div class="stat"><b>48</b><span class="muted">PLAYERS</span></div><div class="stat"><b>4</b><span class="muted">TEAMS</span></div><div class="stat"><b id="pickedCount">0/48</b><span class="muted">SELECTED</span></div></div>
 <section class="panel"><div class="eyebrow">OFFICIAL PLAYER DRAFT</div><h2 id="roundTitle">ROUND 01 / 12</h2><div class="captains" id="captains"></div>
-<div class="layout"><div class="wheelArea"><div class="wheelWrap"><div class="pointer"></div><div class="wheel" id="wheel"><canvas id="canvas" width="700" height="700"></canvas></div><div class="hub"></div></div><button class="spinBtn" id="spin">SPIN THE WHEEL</button><div class="muted">চাকা থেমে একজন খেলোয়াড় নির্বাচন হবে</div></div>
+<div class="layout"><div class="wheelArea"><div class="wheelModeLabel" id="wheelModeLabel">TEAM DRAFT · BLUE MODE</div><div class="wheelWrap"><div class="pointer"></div><div class="wheel" id="wheel"><canvas id="canvas" width="700" height="700"></canvas></div><div class="hub"></div></div><button class="spinBtn" id="spin">SPIN THE WHEEL</button><div class="muted">চাকা থেমে একজন খেলোয়াড় নির্বাচন হবে</div></div>
 <div><div class="current"><div class="eyebrow">CURRENT CAPTAIN</div><div class="currentName" id="currentCaptain">Captain 1</div><div class="muted" id="turnInfo">এই রাউন্ডের প্রথম Spin</div></div><h3>এই রাউন্ডের খেলোয়াড়</h3><div class="remaining" id="remaining"></div><div class="result" id="result"><div class="eyebrow">SELECTED PLAYER</div><div class="winner" id="winner"></div><div class="muted" id="winnerTeam"></div></div><div class="controls"><button class="btn" id="nextCaptain" disabled>পরের ক্যাপ্টেন</button><button class="btn" id="nextRound" disabled>পরের রাউন্ড</button></div><div class="status" id="status">শুরু করতে নিচে ক্যাপ্টেনদের নাম দিয়ে Draft শুরু করুন।</div></div></div>
 </section>
 <section class="panel"><div class="eyebrow">TEAM SQUADS</div><h2>চারটি দলের খেলোয়াড়</h2><div class="teams" id="teams"></div></section>
@@ -84,23 +96,29 @@ const TEAM_NAMES={a:"Bepary Tigers",b:"Bepary Lions",c:"Bepary Victorians",d:"Be
 const teamName=id=>TEAM_NAMES[id]||state.captains[id];
 let soundOn=true,audioCtx=null,spinTimer=null;
 function audio(){if(!soundOn)return null;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}catch(e){return null;}}
-function tone(freq,duration=0.12,type="sine",volume=0.045,delay=0){
+function tone(freq,duration=0.12,type="sine",volume=0.12,delay=0){
  const ac=audio();if(!ac)return;const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+delay;
  o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+duration+.02);
 }
-function sound(kind){if(!soundOn)return;if(kind==="click"){tone(520,.055,"triangle",.025);return;}if(kind==="captain"){tone(660,.16,"sine",.055);tone(880,.22,"sine",.045,.13);return;}if(kind==="win"){tone(523,.16,"triangle",.05);tone(659,.18,"triangle",.05,.13);tone(784,.3,"triangle",.055,.27);return;}if(kind==="auto"){tone(784,.13,"sine",.05);tone(988,.2,"sine",.05,.12);tone(1175,.26,"sine",.05,.25);}}
-function startSpinSound(){if(!soundOn)return;let n=0;spinTimer=setInterval(()=>{tone(170+(n%5)*24,.045,"square",.012);n++;},105);}
+function sound(kind){if(!soundOn)return;
+ if(kind==="click"){tone(620,.09,"triangle",.09);return;}
+ if(kind==="captain"){tone(392,.24,"sawtooth",.10);tone(587,.28,"sine",.13,.12);tone(784,.38,"sine",.14,.28);tone(1175,.45,"triangle",.10,.48);return;}
+ if(kind==="win"){tone(523,.22,"triangle",.12);tone(659,.24,"triangle",.13,.14);tone(784,.3,"triangle",.14,.29);tone(1046,.48,"sine",.13,.46);return;}
+ if(kind==="auto"){tone(659,.2,"sine",.12);tone(784,.24,"sine",.13,.14);tone(988,.28,"sine",.14,.29);tone(1318,.45,"triangle",.12,.45);}
+}
+function startSpinSound(){if(!soundOn)return;let n=0;spinTimer=setInterval(()=>{const rising=170+Math.min(n,24)*13;tone(rising,.07,"square",.055);if(n%4===0)tone(420+Math.min(n,20)*9,.055,"triangle",.035,.025);n++;},95);}
 function stopSpinSound(){if(spinTimer){clearInterval(spinTimer);spinTimer=null;}}
 function rand(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}
 function shuffle(a){let x=[...a];for(let i=x.length-1;i>0;i--){let j=rand(i+1);[x[i],x[j]]=[x[j],x[i]];}return x;}
 function save(){try{localStorage.setItem("cricket-random-spinner-2026",JSON.stringify(state));}catch(e){}}
 function load(){try{let s=JSON.parse(localStorage.getItem("cricket-random-spinner-2026"));if(s&&s.round>=1&&s.round<=12&&s.remainingCaptains)state=s;}catch(e){}}
-function drawWheel(names){const c=$("canvas"),ctx=c.getContext("2d"),w=c.width,cx=w/2,cy=w/2,r=w/2-8;ctx.clearRect(0,0,w,w);if(!names.length){ctx.fillStyle="#152a40";ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();return;}const colors=["#214767","#87602b","#315c62","#624c79"];const step=Math.PI*2/names.length;names.forEach((name,i)=>{let a=-Math.PI/2+i*step;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+step);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.strokeStyle="#f3c66b";ctx.lineWidth=5;ctx.stroke();let mid=a+step/2,tx=cx+Math.cos(mid)*r*.58,ty=cy+Math.sin(mid)*r*.58;ctx.save();ctx.translate(tx,ty);ctx.fillStyle="#fff";ctx.font="bold 26px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";let label=name.length>17?name.slice(0,16)+"…":name;ctx.fillText(label,0,0,190);ctx.restore();});}
+function drawWheel(names){const c=$("canvas"),ctx=c.getContext("2d"),w=c.width,cx=w/2,cy=w/2,r=w/2-8;ctx.clearRect(0,0,w,w);const teamMode=state&&state.phase==="captain";if(!names.length){ctx.fillStyle="#152a40";ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();return;}const teamColors=["#123b60","#176b91","#274a82","#15566b"],playerColors=["#315b36","#8a6428","#3f6d68","#68508a"];const colors=teamMode?teamColors:playerColors;const step=Math.PI*2/names.length;names.forEach((name,i)=>{let a=-Math.PI/2+i*step;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+step);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.strokeStyle=teamMode?"#8bd5ff":"#d9f99b";ctx.lineWidth=teamMode?7:5;ctx.stroke();let mid=a+step/2,tx=cx+Math.cos(mid)*r*.58,ty=cy+Math.sin(mid)*r*.58;ctx.save();ctx.translate(tx,ty);ctx.fillStyle="#fff";ctx.font=teamMode?"900 25px system-ui":"bold 26px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";let label=name.length>17?name.slice(0,16)+"…":name;ctx.fillText(label,0,0,190);ctx.restore();});}
 function captainWheelNames(){return state.remainingCaptains.map(id=>teamName(id));}
 function wheelNames(){return state.phase==="captain"?captainWheelNames():state.remaining;}
 function render(){
  if(!state)return;
  $("roundTitle").textContent="ROUND "+String(state.round).padStart(2,"0")+" / 12";
+ const teamMode=state.phase==="captain";$("wheel").classList.toggle("team-mode",teamMode);$("wheel").classList.toggle("player-mode",!teamMode);$("wheelArea");$("wheelModeLabel").textContent=teamMode?"TEAM DRAFT · BLUE MODE":"PLAYER PICK · GREEN MODE";$("wheelModeLabel").style.color=teamMode?"#8bd5ff":"#b8f36b";$("wheelArea");$("wheel").parentElement.parentElement.classList.toggle("team-draw",teamMode);$("wheel").parentElement.parentElement.classList.toggle("player-draw",!teamMode);
  $("pickedCount").textContent=state.results.length+"/48";
  $("captains").innerHTML=state.captainIds.map(id=>{let done=state.roundDone.includes(id),active=state.activeCaptain===id;return '<div class="captain '+(done?"done":active?"active":"")+'">'+teamName(id)+'<br><small>CAPTAIN: '+state.captains[id]+' · '+(done?"PICKED":active?"CURRENT":"WAITING")+'</small></div>';}).join("");
  $("currentCaptain").textContent=state.activeCaptain?teamName(state.activeCaptain):"TEAM SPIN";
