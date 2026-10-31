@@ -184,7 +184,7 @@ function begin(){
  let names=[0,1,2,3].map((i)=>$("cap"+i).value.trim()||["Sarwar","Munna","Arif","Sobuj"][i]);
  if(new Set(names.map(x=>x.toLowerCase())).size!==4){$("status").textContent="চারজন ক্যাপ্টেনের নাম আলাদা হতে হবে।";return;}
  const ids=["a","b","c","d"];
- state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[names[ids.indexOf(id)]]])),results:[],lastWinner:null};
+ state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[]])),results:[],lastWinner:null};
  $("result").classList.remove("show");$("status").textContent="প্রথমে SPIN CAPTAIN চাপুন।";save();render();
 }
 function matchCaptainPlayer(captainId){
@@ -250,7 +250,9 @@ function spin(){
     const isOwnCaptain=captainNameMatches(player,state.activeCaptain);
     if(isOwnCaptain){
      sound("captain");
-     state.results.push({round:state.round,captain:state.activeCaptain,player,automatic:true,captainAlreadyInTeam:true});
+     // Captains are NOT pre-added. Add the captain only when their own roster slot is spun.
+     state.teams[state.activeCaptain].push(player);
+     state.results.push({round:state.round,captain:state.activeCaptain,player,automatic:true,captainAlreadyInTeam:false});
      state.roundDone.push(state.activeCaptain);
      state.lastWinner=player;
      $("winner").textContent=player;
