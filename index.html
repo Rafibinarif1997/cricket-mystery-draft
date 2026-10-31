@@ -118,7 +118,7 @@ function begin(){
  let names=[0,1,2,3].map((i)=>$("cap"+i).value.trim()||["Sarwar","Munna","Arif","Sobuj"][i]);
  if(new Set(names.map(x=>x.toLowerCase())).size!==4){$("status").textContent="চারজন ক্যাপ্টেনের নাম আলাদা হতে হবে।";return;}
  const ids=["a","b","c","d"];
- state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[]])),results:[],lastWinner:null};
+ state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[names[ids.indexOf(id)]]])),results:[],lastWinner:null};
  $("result").classList.remove("show");$("status").textContent="প্রথমে SPIN CAPTAIN চাপুন।";save();render();
 }
 function matchCaptainPlayer(captainId){
@@ -127,7 +127,14 @@ function matchCaptainPlayer(captainId){
  const ix=state.remaining.findIndex(p=>aliases.includes(p.trim().toLowerCase()));
  if(ix<0)return false;
  const player=state.remaining.splice(ix,1)[0];
- assignPlayer(captainId,player,true);
+ state.results.push({round:state.round,captain:captainId,player,automatic:true, captainAlreadyInTeam:true});
+ state.roundDone.push(captainId);
+ state.lastWinner=player;
+ $("winner").textContent=player;
+ $("winnerTeam").textContent=teamName(captainId)+" · ক্যাপ্টেন আগে থেকেই নিজের দলে যুক্ত";
+ $("result").classList.add("show");
+ state.phase="captain";
+ $("status").textContent=state.captains[captainId]+" ক্যাপ্টেন হিসেবে শুরু থেকেই "+teamName(captainId)+"-এ আছেন; এই রাউন্ডে তার নাম থাকায় আলাদা প্লেয়ার স্পিন লাগবে না।";
  return true;
 }
 function assignPlayer(captainId,player,automatic=false){
