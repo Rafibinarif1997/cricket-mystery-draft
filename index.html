@@ -123,17 +123,19 @@ const ROSTER=[
 const $=id=>document.getElementById(id);let state=null,busy=false;
 const TEAM_NAMES={a:"Bepary Tigers",b:"Bepary Lions",c:"Bepary Victorians",d:"Bepary Vipers"};
 const teamName=id=>TEAM_NAMES[id]||state.captains[id];
-function isAnyCaptainPlayer(player){
- const p=player.trim().toLowerCase();
- return state.captainIds.some(id=>{
-  const c=state.captains[id].trim().toLowerCase();
-  if(c==="sarwar")return p==="sarwar"||p==="sarwer";
-  if(c==="sarwer")return p==="sarwer"||p==="sarwar";
-  return p===c;
- });
+function captainNameMatches(player,captainId){
+ const p=player.trim().toLowerCase(),c=state.captains[captainId].trim().toLowerCase();
+ return (c==="sarwar"||c==="sarwer")?(p==="sarwar"||p==="sarwer"):p===c;
+}
+function isCaptainPlayerForOtherTeam(player,captainId){
+ return state.captainIds.some(id=>id!==captainId&&captainNameMatches(player,id));
 }
 function availableRoundPlayers(roundIndex){
- return ROSTER[roundIndex].filter(player=>!isAnyCaptainPlayer(player));
+ return [...ROSTER[roundIndex]];
+}
+function currentPlayerChoices(){
+ if(!state||!state.activeCaptain)return [];
+ return state.remaining.filter(player=>!isCaptainPlayerForOtherTeam(player,state.activeCaptain));
 }
 let soundOn=true,audioCtx=null,spinTimer=null,masterGain=null,masterComp=null;
 function audio(){if(!soundOn)return null;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();if(!masterGain){masterGain=audioCtx.createGain();masterComp=audioCtx.createDynamicsCompressor();masterGain.gain.value=1.35;masterComp.threshold.value=-14;masterComp.knee.value=18;masterComp.ratio.value=5;masterComp.attack.value=.004;masterComp.release.value=.18;masterGain.connect(masterComp);masterComp.connect(audioCtx.destination);}return audioCtx;}catch(e){return null;}}
@@ -169,11 +171,11 @@ function render(){
  $("captains").innerHTML=state.captainIds.map(id=>{let done=state.roundDone.includes(id),active=state.activeCaptain===id;return '<div class="captain '+(done?"done":active?"active":"")+'">'+teamName(id)+'<br><small>CAPTAIN: '+state.captains[id]+' · '+(done?"PICKED":active?"CURRENT":"WAITING")+'</small></div>';}).join("");
  $("currentCaptain").textContent=state.activeCaptain?teamName(state.activeCaptain):"TEAM SPIN";
  $("turnInfo").textContent=state.phase==="captain"?"প্রথমে টিম নির্বাচন করুন":state.phase==="player"?"এবার "+teamName(state.activeCaptain)+" (ক্যাপ্টেন: "+state.captains[state.activeCaptain]+")-এর জন্য খেলোয়াড় Spin করুন":"এই রাউন্ডের সব নির্বাচন শেষ";
- $("remaining").innerHTML=(state.phase==="captain"?captainWheelNames():state.remaining).map(n=>'<div class="nameChip">'+n+'</div>').join("")+(Array(Math.max(0,4-(state.phase==="captain"?captainWheelNames():state.remaining).length)).fill('<div class="nameChip out">Selected</div>').join(""));
+ $("remaining").innerHTML=(state.phase==="captain"?captainWheelNames():currentPlayerChoices()).map(n=>'<div class="nameChip">'+n+'</div>').join("")+(Array(Math.max(0,4-(state.phase==="captain"?captainWheelNames():currentPlayerChoices()).length)).fill('<div class="nameChip out">Selected</div>').join(""));
  drawWheel(wheelNames());
  $("teams").innerHTML=state.captainIds.map(id=>'<div class="team"><h3>'+teamName(id)+'</h3><div class="muted">Captain: '+state.captains[id]+'</div><ol>'+(state.teams[id]||[]).map(p=>'<li>'+p+'</li>').join("")+'</ol></div>').join("");
  $("spin").textContent=state.phase==="captain"?"SPIN TEAM":"SPIN PLAYER";
- $("spin").disabled=busy||!!state.lastWinner||state.phase==="done"||(state.phase==="captain"&&!state.remainingCaptains.length)||(state.phase==="player"&&!state.remaining.length);
+ $("spin").disabled=busy||!!state.lastWinner||state.phase==="done"||(state.phase==="captain"&&!state.remainingCaptains.length)||(state.phase==="player"&&!currentPlayerChoices().length);
  $("nextCaptain").disabled=busy||!state.lastWinner||state.roundDone.length>=4;
  $("nextRound").disabled=busy||state.roundDone.length!==4||state.round>=12;
  $("start").textContent=state.results.length?"RESTART DRAFT":"START DRAFT";
@@ -182,7 +184,7 @@ function begin(){
  let names=[0,1,2,3].map((i)=>$("cap"+i).value.trim()||["Sarwar","Munna","Arif","Sobuj"][i]);
  if(new Set(names.map(x=>x.toLowerCase())).size!==4){$("status").textContent="চারজন ক্যাপ্টেনের নাম আলাদা হতে হবে।";return;}
  const ids=["a","b","c","d"];
- state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:ROSTER[0].filter(player=>!names.some(c=>{const p=player.trim().toLowerCase(),n=c.trim().toLowerCase();return n==="sarwar"||n==="sarwer"?(p==="sarwar"||p==="sarwer"):p===n;})),teams:Object.fromEntries(ids.map(id=>[id,[names[ids.indexOf(id)]]])),results:[],lastWinner:null};
+ state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[names[ids.indexOf(id)]]])),results:[],lastWinner:null};
  $("result").classList.remove("show");$("status").textContent="প্রথমে SPIN CAPTAIN চাপুন।";save();render();
 }
 function matchCaptainPlayer(captainId){
@@ -215,7 +217,7 @@ function assignPlayer(captainId,player,automatic=false){
 function spin(){
  if(!state||busy||state.lastWinner)return;
  const isCaptain=state.phase==="captain";
- const names=isCaptain?captainWheelNames():state.remaining.filter(player=>!isAnyCaptainPlayer(player));
+ const names=isCaptain?captainWheelNames():currentPlayerChoices();
  if(!names.length)return;
  busy=true;render();
  const area=$("wheel").parentElement.parentElement;
@@ -238,16 +240,25 @@ function spin(){
     state.remainingCaptains=state.remainingCaptains.filter(id=>id!==captainId);
     state.activeCaptain=captainId;
     sound("captain");
-    state.remaining=state.remaining.filter(p=>!isAnyCaptainPlayer(p));
-    if(!matchCaptainPlayer(captainId)){
-     state.phase="player";
-     $("status").textContent=state.captains[captainId]+" নির্বাচিত। এবার SPIN PLAYER চাপুন।";
-    }
+    state.phase="player";
+    $("status").textContent=state.captains[captainId]+" নির্বাচিত। এবার SPIN PLAYER চাপুন।";
    }else{
     const player=names[winnerIndex];
-    state.remaining=state.remaining.filter(p=>p!==player&&!isAnyCaptainPlayer(p));
-    if(isAnyCaptainPlayer(player)){busy=false;save();render();return;}
-    assignPlayer(state.activeCaptain,player,false);
+    state.remaining=state.remaining.filter(p=>p!==player);
+    const isOwnCaptain=captainNameMatches(player,state.activeCaptain);
+    if(isOwnCaptain){
+     sound("captain");
+     state.results.push({round:state.round,captain:state.activeCaptain,player,automatic:true,captainAlreadyInTeam:true});
+     state.roundDone.push(state.activeCaptain);
+     state.lastWinner=player;
+     $("winner").textContent=player;
+     $("winnerTeam").textContent=teamName(state.activeCaptain)+" · নিজের ক্যাপ্টেন স্পিনে নির্বাচিত";
+     $("result").classList.remove("show");void $("result").offsetWidth;$("result").classList.add("show");burstConfetti();
+     state.phase="captain";
+     $("status").textContent=player+" নিজের দলের জন্য স্পিনে নির্বাচিত হয়েছেন। NEXT CAPTAIN চাপুন।";
+    }else{
+     assignPlayer(state.activeCaptain,player,false);
+    }
    }
    busy=false;
    $("wheel").style.transition="none";$("wheel").style.transform="rotate(0deg)";
