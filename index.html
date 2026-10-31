@@ -12,7 +12,7 @@
 <div><div class="current"><div class="eyebrow">CURRENT CAPTAIN</div><div class="currentName" id="currentCaptain">Captain 1</div><div class="muted" id="turnInfo">এই রাউন্ডের প্রথম Spin</div></div><h3>এই রাউন্ডের খেলোয়াড়</h3><div class="remaining" id="remaining"></div><div class="result" id="result"><div class="eyebrow">SELECTED PLAYER</div><div class="winner" id="winner"></div><div class="muted" id="winnerTeam"></div></div><div class="controls"><button class="btn" id="nextCaptain" disabled>পরের ক্যাপ্টেন</button><button class="btn" id="nextRound" disabled>পরের রাউন্ড</button></div><div class="status" id="status">শুরু করতে নিচে ক্যাপ্টেনদের নাম দিয়ে Draft শুরু করুন।</div></div></div>
 </section>
 <section class="panel"><div class="eyebrow">TEAM SQUADS</div><h2>চারটি দলের খেলোয়াড়</h2><div class="teams" id="teams"></div></section>
-<section class="panel"><div class="eyebrow">DRAFT SETUP</div><h3>ক্যাপ্টেনদের নাম</h3><div class="setupGrid"><input class="field" id="cap0" placeholder="Captain 1"><input class="field" id="cap1" placeholder="Captain 2"><input class="field" id="cap2" placeholder="Captain 3"><input class="field" id="cap3" placeholder="Captain 4"></div><div class="controls"><button class="btn" id="start">START / NEW DRAFT</button><button class="btn" id="reset">RESET DRAFT</button></div><p class="muted">রাউন্ডের খেলোয়াড়ের তালিকা স্থির থাকবে। প্রতিটি Spin-এ শুধু অবশিষ্ট খেলোয়াড়দের মধ্যে থেকে একজন র‍্যান্ডমভাবে নির্বাচিত হবে।</p></section>
+<section class="panel"><div class="eyebrow">DRAFT SETUP</div><h3>ক্যাপ্টেনদের নাম</h3><div class="setupGrid"><input class="field" id="cap0" placeholder="Sarwar"><input class="field" id="cap1" placeholder="Munna"><input class="field" id="cap2" placeholder="Arif"><input class="field" id="cap3" placeholder="Sobuj"></div><div class="controls"><button class="btn" id="start">START / NEW DRAFT</button><button class="btn" id="reset">RESET DRAFT</button></div><p class="muted">রাউন্ডের খেলোয়াড়ের তালিকা স্থির থাকবে। প্রতিটি Spin-এ শুধু অবশিষ্ট খেলোয়াড়দের মধ্যে থেকে একজন র‍্যান্ডমভাবে নির্বাচিত হবে।</p></section>
 <div class="footer">CRICKET RANDOM SPINNER · LOCAL DRAFT MODE</div></main>
 <script>
 const ROSTER=[
@@ -33,13 +33,99 @@ const $=id=>document.getElementById(id);let state=null,busy=false;
 function rand(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}
 function shuffle(a){let x=[...a];for(let i=x.length-1;i>0;i--){let j=rand(i+1);[x[i],x[j]]=[x[j],x[i]];}return x;}
 function save(){try{localStorage.setItem("cricket-random-spinner-2026",JSON.stringify(state));}catch(e){}}
-function load(){try{let s=JSON.parse(localStorage.getItem("cricket-random-spinner-2026"));if(s&&s.round>=1&&s.round<=12)state=s;}catch(e){}}
+function load(){try{let s=JSON.parse(localStorage.getItem("cricket-random-spinner-2026"));if(s&&s.round>=1&&s.round<=12&&s.remainingCaptains)state=s;}catch(e){}}
 function drawWheel(names){const c=$("canvas"),ctx=c.getContext("2d"),w=c.width,cx=w/2,cy=w/2,r=w/2-8;ctx.clearRect(0,0,w,w);if(!names.length){ctx.fillStyle="#152a40";ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();return;}const colors=["#214767","#87602b","#315c62","#624c79"];const step=Math.PI*2/names.length;names.forEach((name,i)=>{let a=-Math.PI/2+i*step;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+step);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.strokeStyle="#f3c66b";ctx.lineWidth=5;ctx.stroke();let mid=a+step/2,tx=cx+Math.cos(mid)*r*.58,ty=cy+Math.sin(mid)*r*.58;ctx.save();ctx.translate(tx,ty);ctx.fillStyle="#fff";ctx.font="bold 26px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";let label=name.length>17?name.slice(0,16)+"…":name;ctx.fillText(label,0,0,190);ctx.restore();});}
-function render(){if(!state)return;$("roundTitle").textContent="ROUND "+String(state.round).padStart(2,"0")+" / 12";$("pickedCount").textContent=state.results.length+"/48";$("captains").innerHTML=state.order.map((id,i)=>'<div class="captain '+(i<state.turn?"done":i===state.turn?"active":"")+'">'+state.captains[id]+'<br><small>'+(i<state.turn?"SELECTED":i===state.turn?"SPINNING NEXT":"WAITING")+'</small></div>').join("");const captainId=state.order[state.turn];$("currentCaptain").textContent=captainId?state.captains[captainId]:"ROUND COMPLETE";$("turnInfo").textContent=captainId?"Captain "+(state.turn+1)+" of 4":"এই রাউন্ডের সব Spin শেষ";$("remaining").innerHTML=state.remaining.map(n=>'<div class="nameChip">'+n+'</div>').join("")+(Array(4-state.remaining.length).fill('<div class="nameChip out">Selected</div>').join(""));drawWheel(state.remaining);$("teams").innerHTML=state.captainIds.map(id=>'<div class="team"><h3>'+state.captains[id]+'</h3><ol>'+(state.teams[id]||[]).map(p=>'<li>'+p+'</li>').join("")+'</ol></div>').join("");$("spin").disabled=busy||!captainId||state.remaining.length===0;$("nextCaptain").disabled=busy||!state.lastWinner||state.turn>=4;$("nextRound").disabled=busy||state.turn!==4||state.round>=12;$("start").textContent=state.results.length?"RESTART DRAFT":"START DRAFT";}
-function begin(){let names=[0,1,2,3].map(i=>$("cap"+i).value.trim()||"Captain "+(i+1));if(new Set(names.map(x=>x.toLowerCase())).size!==4){$("status").textContent="চারজন ক্যাপ্টেনের নাম আলাদা হতে হবে।";return;}const ids=["a","b","c","d"];state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,turn:0,order:shuffle(ids),remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[]])),results:[],lastWinner:null};$("result").classList.remove("show");$("status").textContent="Draft শুরু হয়েছে। প্রথম ক্যাপ্টেন Spin করুন।";save();render();}
-function spin(){if(!state||busy||state.turn>=4||!state.remaining.length)return;busy=true;render();const names=[...state.remaining],winnerIndex=rand(names.length),step=360/names.length,center=-90+(winnerIndex+.5)*step;let target=(( -90-center)%360+360)%360+1800;$("wheel").style.transform="rotate(0deg)";requestAnimationFrame(()=>requestAnimationFrame(()=>{$("wheel").style.transform="rotate("+target+"deg)";}));$("status").textContent="চাকা ঘুরছে...";setTimeout(()=>{const winner=names[winnerIndex],captainId=state.order[state.turn];state.remaining=state.remaining.filter((_,i)=>i!==winnerIndex);state.teams[captainId].push(winner);state.results.push({round:state.round,captain:captainId,player:winner});state.lastWinner=winner;state.turn++;busy=false;$("winner").textContent=winner;$("winnerTeam").textContent=state.captains[captainId]+"-এর দলে যুক্ত হয়েছে";$("result").classList.add("show");$("wheel").style.transition="none";$("wheel").style.transform="rotate(0deg)";requestAnimationFrame(()=>{$("wheel").style.transition="transform 5s cubic-bezier(.12,.72,.12,1)";});$("status").textContent=state.remaining.length? "নির্বাচন সম্পন্ন। পরের ক্যাপ্টেনের পালা।":"এই রাউন্ডের চারজনই নির্বাচিত।";save();render();},5100);}
-function nextCaptain(){if(!state||!state.lastWinner||state.turn>=4)return;state.lastWinner=null;$("result").classList.remove("show");$("status").textContent="পরবর্তী ক্যাপ্টেন Spin করতে পারবেন।";save();render();}
-function nextRound(){if(!state||state.turn!==4||state.round>=12)return;state.round++;state.turn=0;state.order=shuffle(state.captainIds);state.remaining=[...ROSTER[state.round-1]];state.lastWinner=null;$("result").classList.remove("show");$("status").textContent="নতুন রাউন্ড! তালিকার পরবর্তী ৪ জন প্রস্তুত।";save();render();}
-$("spin").onclick=spin;$("nextCaptain").onclick=nextCaptain;$("nextRound").onclick=nextRound;$("start").onclick=begin;$("reset").onclick=()=>{if(confirm("সব ফলাফল মুছে নতুন করে শুরু করবেন?")){localStorage.removeItem("cricket-random-spinner-2026");state=null;busy=false;$("result").classList.remove("show");$("status").textContent="নতুন Draft শুরু করতে ক্যাপ্টেনদের নাম দিন।";$("pickedCount").textContent="0/48";$("roundTitle").textContent="ROUND 01 / 12";$("captains").innerHTML="";$("currentCaptain").textContent="—";$("remaining").innerHTML="";$("teams").innerHTML="";drawWheel([]);$("spin").disabled=true;$("nextCaptain").disabled=true;$("nextRound").disabled=true;}};
-load();if(state){state.lastWinner=null;render();$("status").textContent="আগের Draft এই ব্রাউজারে সেভ ছিল; এখান থেকে চালিয়ে যেতে পারো।";[0,1,2,3].forEach((i)=>$("cap"+i).value=state.captains[state.captainIds[i]]);}else{drawWheel([]);$("spin").disabled=true;}
+function captainWheelNames(){return state.remainingCaptains.map(id=>state.captains[id]);}
+function wheelNames(){return state.phase==="captain"?captainWheelNames():state.remaining;}
+function render(){
+ if(!state)return;
+ $("roundTitle").textContent="ROUND "+String(state.round).padStart(2,"0")+" / 12";
+ $("pickedCount").textContent=state.results.length+"/48";
+ $("captains").innerHTML=state.captainIds.map(id=>{let done=state.roundDone.includes(id),active=state.activeCaptain===id;return '<div class="captain '+(done?"done":active?"active":"")+'">'+state.captains[id]+'<br><small>'+(done?"PICKED THIS ROUND":active?"CURRENT CAPTAIN":"WAITING FOR SPIN")+'</small></div>';}).join("");
+ $("currentCaptain").textContent=state.activeCaptain?state.captains[state.activeCaptain]:"CAPTAIN SPIN";
+ $("turnInfo").textContent=state.phase==="captain"?"প্রথমে ক্যাপ্টেন নির্বাচন করুন":state.phase==="player"?"এবার "+state.captains[state.activeCaptain]+"-এর জন্য খেলোয়াড় Spin করুন":"এই রাউন্ডের সব নির্বাচন শেষ";
+ $("remaining").innerHTML=(state.phase==="captain"?captainWheelNames():state.remaining).map(n=>'<div class="nameChip">'+n+'</div>').join("")+(Array(Math.max(0,4-(state.phase==="captain"?captainWheelNames():state.remaining).length)).fill('<div class="nameChip out">Selected</div>').join(""));
+ drawWheel(wheelNames());
+ $("teams").innerHTML=state.captainIds.map(id=>'<div class="team"><h3>'+state.captains[id]+'</h3><ol>'+(state.teams[id]||[]).map(p=>'<li>'+p+'</li>').join("")+'</ol></div>').join("");
+ $("spin").textContent=state.phase==="captain"?"SPIN CAPTAIN":"SPIN PLAYER";
+ $("spin").disabled=busy||!!state.lastWinner||state.phase==="done"||(state.phase==="captain"&&!state.remainingCaptains.length)||(state.phase==="player"&&!state.remaining.length);
+ $("nextCaptain").disabled=busy||!state.lastWinner||state.roundDone.length>=4;
+ $("nextRound").disabled=busy||state.roundDone.length!==4||state.round>=12;
+ $("start").textContent=state.results.length?"RESTART DRAFT":"START DRAFT";
+}
+function begin(){
+ let names=[0,1,2,3].map((i)=>$("cap"+i).value.trim()||["Sarwar","Munna","Arif","Sobuj"][i]);
+ if(new Set(names.map(x=>x.toLowerCase())).size!==4){$("status").textContent="চারজন ক্যাপ্টেনের নাম আলাদা হতে হবে।";return;}
+ const ids=["a","b","c","d"];
+ state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[]])),results:[],lastWinner:null};
+ $("result").classList.remove("show");$("status").textContent="প্রথমে SPIN CAPTAIN চাপুন।";save();render();
+}
+function matchCaptainPlayer(captainId){
+ const n=state.captains[captainId].trim().toLowerCase();
+ const aliases=n==="sarwar"?["sarwar","sarwer"]:[n];
+ const ix=state.remaining.findIndex(p=>aliases.includes(p.trim().toLowerCase()));
+ if(ix<0)return false;
+ const player=state.remaining.splice(ix,1)[0];
+ assignPlayer(captainId,player,true);
+ return true;
+}
+function assignPlayer(captainId,player,automatic=false){
+ state.teams[captainId].push(player);
+ state.results.push({round:state.round,captain:captainId,player,automatic});
+ state.roundDone.push(captainId);
+ state.lastWinner=player;
+ $("winner").textContent=player;
+ $("winnerTeam").textContent=state.captains[captainId]+"-এর দলে "+(automatic?"অটোমেটিক যুক্ত হয়েছে":"যুক্ত হয়েছে");
+ $("result").classList.add("show");
+ state.phase="captain";
+ $("status").textContent=automatic?"ক্যাপ্টেনের নিজের নাম এই রাউন্ডে ছিল—নিজের দলে অটোমেটিক যোগ হয়েছে।":"প্লেয়ার নির্বাচন সম্পন্ন। পরের ক্যাপ্টেন স্পিন করুন।";
+}
+function spin(){
+ if(!state||busy||state.lastWinner)return;
+ const isCaptain=state.phase==="captain";
+ const names=isCaptain?captainWheelNames():[...state.remaining];
+ if(!names.length)return;
+ busy=true;render();
+ const winnerIndex=rand(names.length),step=360/names.length,center=-90+(winnerIndex+.5)*step;
+ let target=(( -90-center)%360+360)%360+1800;
+ $("wheel").style.transform="rotate(0deg)";
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{$("wheel").style.transform="rotate("+target+"deg)";}));
+ $("status").textContent=isCaptain?"ক্যাপ্টেন নির্বাচন হচ্ছে...":"খেলোয়াড় নির্বাচন হচ্ছে...";
+ setTimeout(()=>{
+  if(isCaptain){
+   const captainName=names[winnerIndex],captainId=state.remainingCaptains.find(id=>state.captains[id]===captainName);
+   state.remainingCaptains=state.remainingCaptains.filter(id=>id!==captainId);
+   state.activeCaptain=captainId;
+   if(!matchCaptainPlayer(captainId)){
+    state.phase="player";
+    $("status").textContent=state.captains[captainId]+" নির্বাচিত। এবার Player Spin করুন।";
+   }
+  }else{
+   const player=names[winnerIndex];
+   state.remaining=state.remaining.filter((_,i)=>i!==winnerIndex);
+   assignPlayer(state.activeCaptain,player,false);
+  }
+  busy=false;
+  $("wheel").style.transition="none";$("wheel").style.transform="rotate(0deg)";
+  requestAnimationFrame(()=>{$("wheel").style.transition="transform 5s cubic-bezier(.12,.72,.12,1)";});
+  save();render();
+ },5100);
+}
+function nextCaptain(){
+ if(!state||!state.lastWinner)return;
+ state.lastWinner=null;state.activeCaptain=null;
+ if(state.roundDone.length===4){state.phase="done";$("status").textContent="এই রাউন্ডের চারটি দলীয় নির্বাচন শেষ। পরের রাউন্ডে যান।";}
+ else{state.phase="captain";$("status").textContent="পরবর্তী ক্যাপ্টেন নির্বাচন করতে SPIN CAPTAIN চাপুন।";}
+ $("result").classList.remove("show");save();render();
+}
+function nextRound(){
+ if(!state||state.roundDone.length!==4||state.round>=12)return;
+ state.round++;state.phase="captain";state.remainingCaptains=[...state.captainIds];state.activeCaptain=null;state.roundDone=[];state.remaining=[...ROSTER[state.round-1]];state.lastWinner=null;
+ $("result").classList.remove("show");$("status").textContent="নতুন রাউন্ড। প্রথমে ক্যাপ্টেন স্পিন করুন।";save();render();
+}
+$("spin").onclick=spin;$("nextCaptain").onclick=nextCaptain;$("nextRound").onclick=nextRound;$("start").onclick=begin;
+$("reset").onclick=()=>{if(confirm("সব ফলাফল মুছে নতুন করে শুরু করবেন?")){localStorage.removeItem("cricket-random-spinner-2026");state=null;busy=false;$("result").classList.remove("show");$("status").textContent="নতুন Draft শুরু করতে ক্যাপ্টেনদের নাম দিন।";$("pickedCount").textContent="0/48";$("roundTitle").textContent="ROUND 01 / 12";$("captains").innerHTML="";$("currentCaptain").textContent="—";$("remaining").innerHTML="";$("teams").innerHTML="";drawWheel([]);$("spin").disabled=true;$("nextCaptain").disabled=true;$("nextRound").disabled=true;}};
+load();
+if(state){state.lastWinner=null;state.activeCaptain=null;state.phase="captain";render();$("status").textContent="আগের Draft সেভ ছিল; নতুন ক্যাপ্টেন স্পিন থেকে চালিয়ে যেতে পারো.";[0,1,2,3].forEach(i=>$("cap"+i).value=state.captains[state.captainIds[i]]);}
+else{[0,1,2,3].forEach((i)=>$("cap"+i).value=["Sarwar","Munna","Arif","Sobuj"][i]);drawWheel([]);$("spin").disabled=true;}
 </script></body></html>
