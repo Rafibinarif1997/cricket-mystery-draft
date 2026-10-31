@@ -94,6 +94,18 @@ const ROSTER=[
 const $=id=>document.getElementById(id);let state=null,busy=false;
 const TEAM_NAMES={a:"Bepary Tigers",b:"Bepary Lions",c:"Bepary Victorians",d:"Bepary Vipers"};
 const teamName=id=>TEAM_NAMES[id]||state.captains[id];
+function isAnyCaptainPlayer(player){
+ const p=player.trim().toLowerCase();
+ return state.captainIds.some(id=>{
+  const c=state.captains[id].trim().toLowerCase();
+  if(c==="sarwar")return p==="sarwar"||p==="sarwer";
+  if(c==="sarwer")return p==="sarwer"||p==="sarwar";
+  return p===c;
+ });
+}
+function availableRoundPlayers(roundIndex){
+ return ROSTER[roundIndex].filter(player=>!isAnyCaptainPlayer(player));
+}
 let soundOn=true,audioCtx=null,spinTimer=null;
 function audio(){if(!soundOn)return null;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}catch(e){return null;}}
 function tone(freq,duration=0.12,type="sine",volume=0.12,delay=0){
@@ -136,12 +148,12 @@ function begin(){
  let names=[0,1,2,3].map((i)=>$("cap"+i).value.trim()||["Sarwar","Munna","Arif","Sobuj"][i]);
  if(new Set(names.map(x=>x.toLowerCase())).size!==4){$("status").textContent="চারজন ক্যাপ্টেনের নাম আলাদা হতে হবে।";return;}
  const ids=["a","b","c","d"];
- state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:[...ROSTER[0]],teams:Object.fromEntries(ids.map(id=>[id,[names[ids.indexOf(id)]]])),results:[],lastWinner:null};
+ state={captains:Object.fromEntries(ids.map((id,i)=>[id,names[i]])),captainIds:ids,round:1,phase:"captain",remainingCaptains:[...ids],activeCaptain:null,roundDone:[],remaining:availableRoundPlayers(0),teams:Object.fromEntries(ids.map(id=>[id,[names[ids.indexOf(id)]]])),results:[],lastWinner:null};
  $("result").classList.remove("show");$("status").textContent="প্রথমে SPIN CAPTAIN চাপুন।";save();render();
 }
 function matchCaptainPlayer(captainId){
  const n=state.captains[captainId].trim().toLowerCase();
- const aliases=n==="sarwar"?["sarwar","sarwer"]:[n];
+ const aliases=(n==="sarwar"||n==="sarwer")?["sarwar","sarwer"]:[n];
  const ix=state.remaining.findIndex(p=>aliases.includes(p.trim().toLowerCase()));
  if(ix<0)return false;
  const player=state.remaining.splice(ix,1)[0];
@@ -169,7 +181,7 @@ function assignPlayer(captainId,player,automatic=false){
 function spin(){
  if(!state||busy||state.lastWinner)return;
  const isCaptain=state.phase==="captain";
- const names=isCaptain?captainWheelNames():[...state.remaining];
+ const names=isCaptain?captainWheelNames():state.remaining.filter(player=>!isAnyCaptainPlayer(player));
  if(!names.length)return;
  busy=true;startSpinSound();render();
  const winnerIndex=rand(names.length),step=360/names.length,center=-90+(winnerIndex+.5)*step;
@@ -190,7 +202,8 @@ function spin(){
    }
   }else{
    const player=names[winnerIndex];
-   state.remaining=state.remaining.filter((_,i)=>i!==winnerIndex);
+   state.remaining=state.remaining.filter(p=>p!==player&&!isAnyCaptainPlayer(p));
+   if(isAnyCaptainPlayer(player)){busy=false;save();render();return;}
    assignPlayer(state.activeCaptain,player,false);
   }
   busy=false;
@@ -208,7 +221,7 @@ function nextCaptain(){
 }
 function nextRound(){
  if(!state||state.roundDone.length!==4||state.round>=12)return;
- state.round++;state.phase="captain";state.remainingCaptains=[...state.captainIds];state.activeCaptain=null;state.roundDone=[];state.remaining=[...ROSTER[state.round-1]];state.lastWinner=null;
+ state.round++;state.phase="captain";state.remainingCaptains=[...state.captainIds];state.activeCaptain=null;state.roundDone=[];state.remaining=availableRoundPlayers(state.round-1);state.lastWinner=null;
  $("result").classList.remove("show");$("status").textContent="নতুন রাউন্ড। প্রথমে ক্যাপ্টেন স্পিন করুন।";save();render();
 }
 $("spin").onclick=()=>{spin();};
